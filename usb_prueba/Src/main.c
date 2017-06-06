@@ -443,17 +443,27 @@ static void MX_GPIO_Init(void)
 /* StartDefaultTask function */
 void StartDefaultTask(void const * argument)
 {
+
   /* init code for USB_HOST */
   MX_USB_HOST_Init();
 
   /* init code for FATFS */
   MX_FATFS_Init();
 
+  FATFS myFats;
+  FIL myFile;
+  uint8_t myData[11]="hello world";
+  UINT byteCount;
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+	if(f_mount(&myFats,"USB:",1)==FR_OK){
+		f_open(&myFile,"USB:create2.txt", FA_WRITE|FA_CREATE_ALWAYS);
+		f_write(&myFile, myData, 11, &byteCount);
+		f_close(&myFile);
+	}
+    osDelay(1000);
   }
   /* USER CODE END 5 */ 
 }
