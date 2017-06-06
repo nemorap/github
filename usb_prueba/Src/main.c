@@ -81,8 +81,8 @@ static void MX_GPIO_Init(void);
 static void MX_DMA2D_Init(void);
 static void MX_FMC_Init(void);
 static void MX_I2C3_Init(void);
-static void MX_LTDC_Init(void);
 static void MX_SPI5_Init(void);
+static void MX_LTDC_Init(void);
 void StartDefaultTask(void const * argument);
 void lcd_task(void const * argument);
 
@@ -123,9 +123,10 @@ int main(void)
   MX_DMA2D_Init();
   MX_FMC_Init();
   MX_I2C3_Init();
-  MX_LTDC_Init();
   MX_SPI5_Init();
-
+  MX_LTDC_Init();
+  MX_USB_HOST_Init();
+  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -303,10 +304,10 @@ static void MX_LTDC_Init(void)
   hltdc.Init.VerticalSync = 3;
   hltdc.Init.AccumulatedHBP = 14;
   hltdc.Init.AccumulatedVBP = 5;
-  hltdc.Init.AccumulatedActiveW = 334;
-  hltdc.Init.AccumulatedActiveH = 245;
-  hltdc.Init.TotalWidth = 340;
-  hltdc.Init.TotalHeigh = 247;
+  hltdc.Init.AccumulatedActiveW = 654;
+  hltdc.Init.AccumulatedActiveH = 485;
+  hltdc.Init.TotalWidth = 660;
+  hltdc.Init.TotalHeigh = 487;
   hltdc.Init.Backcolor.Blue = 0;
   hltdc.Init.Backcolor.Green = 0;
   hltdc.Init.Backcolor.Red = 0;
@@ -443,28 +444,24 @@ static void MX_GPIO_Init(void)
 /* StartDefaultTask function */
 void StartDefaultTask(void const * argument)
 {
-
   /* init code for USB_HOST */
-  MX_USB_HOST_Init();
 
-  /* init code for FATFS */
-  MX_FATFS_Init();
 
   FATFS myFats;
-  FIL myFile;
-  uint8_t myData[11]="hello world";
-  UINT byteCount;
-  /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-  for(;;)
-  {
-	if(f_mount(&myFats,"USB:",1)==FR_OK){
-		f_open(&myFile,"USB:create2.txt", FA_WRITE|FA_CREATE_ALWAYS);
-		f_write(&myFile, myData, 11, &byteCount);
-		f_close(&myFile);
-	}
-    osDelay(1000);
-  }
+     FIL myFile;
+     uint8_t myData[11]="hello world";
+     UINT byteCount;
+     /* USER CODE BEGIN 5 */
+     /* Infinite loop */
+     for(;;)
+     {
+   	if(f_mount(&myFats,"USB:",1)==FR_OK){
+   		f_open(&myFile,"create2.txt", FA_WRITE|FA_CREATE_ALWAYS);
+   		f_write(&myFile, myData, 11, &byteCount);
+   		f_close(&myFile);
+   	}
+       osDelay(1000);
+     }
   /* USER CODE END 5 */ 
 }
 
