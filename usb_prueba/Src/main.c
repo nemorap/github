@@ -126,8 +126,7 @@ int main(void)
   MX_I2C3_Init();
   MX_SPI5_Init();
   MX_LTDC_Init();
- /* MX_USB_HOST_Init();
-  MX_FATFS_Init();*/
+
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -449,10 +448,9 @@ static void MX_GPIO_Init(void)
 
   void StartDefaultTask(void const * argument)
   {
-    /* init code for USB_HOST */
-	  MX_USB_HOST_Init();
-	    MX_FATFS_Init();
-	/*  BSP_LED_Init(LED3);
+     /*init code for USB_HOST */
+
+	 /* BSP_LED_Init(LED3);
 	  BSP_LED_Init(LED4);
 
 	  for(;;){
@@ -461,15 +459,18 @@ static void MX_GPIO_Init(void)
 		  BSP_LED_Toggle(LED4);
 		  osDelay(500);
 	  }*/
-    FATFS myFats;
+
+	  MX_USB_HOST_Init();
+	  MX_FATFS_Init();
+	   FATFS myFats;
        FIL myFile;
        uint8_t myData[11]="hello world";
        UINT byteCount;
 
        for(;;)
        {
-     	if(f_mount(&myFats,"USB2:", 1)==FR_OK){
-     		f_open(&myFile,"USB2:create2.txt", FA_WRITE|FA_CREATE_ALWAYS);
+     	if(f_mount(&myFats, USBH_Path, 1)==FR_OK){
+     		f_open(&myFile,"create2.txt", FA_WRITE|FA_CREATE_ALWAYS);
      		f_write(&myFile, myData, 11, &byteCount);
      		f_close(&myFile);
      	}
@@ -483,7 +484,7 @@ static void MX_GPIO_Init(void)
   {
     /* USER CODE BEGIN lcd_task */
     /* Infinite loop */
-  	BSP_LCD_Init();
+	  BSP_LCD_Init();
   	  BSP_LCD_LayerDefaultInit(LCD_BACKGROUND_LAYER, LCD_FRAME_BUFFER);
   	  BSP_LCD_LayerDefaultInit(LCD_FOREGROUND_LAYER, LCD_FRAME_BUFFER);
   	  BSP_LCD_SelectLayer(LCD_FOREGROUND_LAYER);
