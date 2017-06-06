@@ -126,8 +126,8 @@ int main(void)
   MX_I2C3_Init();
   MX_SPI5_Init();
   MX_LTDC_Init();
-  MX_USB_HOST_Init();
-  MX_FATFS_Init();
+ /* MX_USB_HOST_Init();
+  MX_FATFS_Init();*/
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -450,18 +450,26 @@ static void MX_GPIO_Init(void)
   void StartDefaultTask(void const * argument)
   {
     /* init code for USB_HOST */
+	  MX_USB_HOST_Init();
+	    MX_FATFS_Init();
+	/*  BSP_LED_Init(LED3);
+	  BSP_LED_Init(LED4);
 
+	  for(;;){
 
+		  BSP_LED_Toggle(LED3);
+		  BSP_LED_Toggle(LED4);
+		  osDelay(500);
+	  }*/
     FATFS myFats;
        FIL myFile;
        uint8_t myData[11]="hello world";
        UINT byteCount;
-       /* USER CODE BEGIN 5 */
-       /* Infinite loop */
+
        for(;;)
        {
-     	if(f_mount(&myFats,"U1:", 0)==FR_OK){
-     		f_open(&myFile,"create2.txt", FA_WRITE|FA_CREATE_ALWAYS);
+     	if(f_mount(&myFats,"USB2:", 1)==FR_OK){
+     		f_open(&myFile,"USB2:create2.txt", FA_WRITE|FA_CREATE_ALWAYS);
      		f_write(&myFile, myData, 11, &byteCount);
      		f_close(&myFile);
      	}
@@ -487,21 +495,21 @@ static void MX_GPIO_Init(void)
   	  {
   		  BSP_LCD_SetTextColor(LCD_COLOR_DARKGREEN);
   		  BSP_LCD_DisplayStringAtLine(1,(uint8_t*)"HOLA MUNDO 1");
-  		  HAL_Delay(1000);
+  		osDelay(2000);
   		  BSP_LCD_SetTextColor(LCD_COLOR_DARKBLUE);
   		  BSP_LCD_DisplayStringAtLine(2,(uint8_t*)"HOLA MUNDO 2");
-  		  HAL_Delay(1000);
+  		osDelay(2000);
   		  BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
   		  BSP_LCD_DisplayStringAtLine(3,(uint8_t*)"HOLA MUNDO 3");
-  		  HAL_Delay(1000);
+  		osDelay(2000);
   		  BSP_LCD_SetTextColor(LCD_COLOR_DARKYELLOW);
   		  BSP_LCD_DisplayStringAtLine(4,(uint8_t*)"HOLA MUNDO 4");
-  		  HAL_Delay(1000);
+  		osDelay(2000);
   		  BSP_LCD_SetTextColor(LCD_COLOR_DARKMAGENTA);
   		  BSP_LCD_DisplayStringAtLine(5,(uint8_t*)"HOLA MUNDO 5");
 
 
-  	    osDelay(1000);
+  	    osDelay(2000);
   	  BSP_LCD_Clear(LCD_COLOR_WHITE);
   	  }
     /* USER CODE END lcd_task */
