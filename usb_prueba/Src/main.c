@@ -51,7 +51,8 @@
 #include "cmsis_os.h"
 #include "fatfs.h"
 #include "usb_host.h"
-
+#include "stm32f429i_discovery_lcd.h"
+#include "stdlib.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -304,10 +305,10 @@ static void MX_LTDC_Init(void)
   hltdc.Init.VerticalSync = 3;
   hltdc.Init.AccumulatedHBP = 14;
   hltdc.Init.AccumulatedVBP = 5;
-  hltdc.Init.AccumulatedActiveW = 654;
-  hltdc.Init.AccumulatedActiveH = 485;
-  hltdc.Init.TotalWidth = 660;
-  hltdc.Init.TotalHeigh = 487;
+  hltdc.Init.AccumulatedActiveW = 334;
+  hltdc.Init.AccumulatedActiveH = 245;
+  hltdc.Init.TotalWidth = 340;
+  hltdc.Init.TotalHeigh = 247;
   hltdc.Init.Backcolor.Blue = 0;
   hltdc.Init.Backcolor.Green = 0;
   hltdc.Init.Backcolor.Red = 0;
@@ -320,7 +321,7 @@ static void MX_LTDC_Init(void)
   pLayerCfg.WindowX1 = 0;
   pLayerCfg.WindowY0 = 0;
   pLayerCfg.WindowY1 = 0;
-  pLayerCfg.PixelFormat = LTDC_PIXEL_FORMAT_ARGB8888;
+  pLayerCfg.PixelFormat = LTDC_PIXEL_FORMAT_RGB565;
   pLayerCfg.Alpha = 0;
   pLayerCfg.Alpha0 = 0;
   pLayerCfg.BlendingFactor1 = LTDC_BLENDING_FACTOR1_CA;
@@ -340,7 +341,7 @@ static void MX_LTDC_Init(void)
   pLayerCfg1.WindowX1 = 0;
   pLayerCfg1.WindowY0 = 0;
   pLayerCfg1.WindowY1 = 0;
-  pLayerCfg1.PixelFormat = LTDC_PIXEL_FORMAT_ARGB8888;
+  pLayerCfg1.PixelFormat = LTDC_PIXEL_FORMAT_RGB565;
   pLayerCfg1.Alpha = 0;
   pLayerCfg1.Alpha0 = 0;
   pLayerCfg1.BlendingFactor1 = LTDC_BLENDING_FACTOR1_CA;
@@ -442,40 +443,69 @@ static void MX_GPIO_Init(void)
 /* USER CODE END 4 */
 
 /* StartDefaultTask function */
-void StartDefaultTask(void const * argument)
-{
+
   /* init code for USB_HOST */
 
 
-  FATFS myFats;
-     FIL myFile;
-     uint8_t myData[11]="hello world";
-     UINT byteCount;
-     /* USER CODE BEGIN 5 */
-     /* Infinite loop */
-     for(;;)
-     {
-   	if(f_mount(&myFats,"USB:",1)==FR_OK){
-   		f_open(&myFile,"create2.txt", FA_WRITE|FA_CREATE_ALWAYS);
-   		f_write(&myFile, myData, 11, &byteCount);
-   		f_close(&myFile);
-   	}
-       osDelay(1000);
-     }
-  /* USER CODE END 5 */ 
-}
-
-/* lcd_task function */
-void lcd_task(void const * argument)
-{
-  /* USER CODE BEGIN lcd_task */
-  /* Infinite loop */
-  for(;;)
+  void StartDefaultTask(void const * argument)
   {
-    osDelay(1);
+    /* init code for USB_HOST */
+
+
+    FATFS myFats;
+       FIL myFile;
+       uint8_t myData[11]="hello world";
+       UINT byteCount;
+       /* USER CODE BEGIN 5 */
+       /* Infinite loop */
+       for(;;)
+       {
+     	if(f_mount(&myFats,"U1:", 0)==FR_OK){
+     		f_open(&myFile,"create2.txt", FA_WRITE|FA_CREATE_ALWAYS);
+     		f_write(&myFile, myData, 11, &byteCount);
+     		f_close(&myFile);
+     	}
+         osDelay(1000);
+       }
+    /* USER CODE END 5 */
   }
-  /* USER CODE END lcd_task */
-}
+
+  /* lcd_task function */
+  void lcd_task(void const * argument)
+  {
+    /* USER CODE BEGIN lcd_task */
+    /* Infinite loop */
+  	BSP_LCD_Init();
+  	  BSP_LCD_LayerDefaultInit(LCD_BACKGROUND_LAYER, LCD_FRAME_BUFFER);
+  	  BSP_LCD_LayerDefaultInit(LCD_FOREGROUND_LAYER, LCD_FRAME_BUFFER);
+  	  BSP_LCD_SelectLayer(LCD_FOREGROUND_LAYER);
+  	  BSP_LCD_DisplayOn();
+  	  BSP_LCD_Clear(LCD_COLOR_WHITE);
+  	  /* USER CODE BEGIN StartTask02 */
+  	  /* Infinite loop */
+  	  for(;;)
+  	  {
+  		  BSP_LCD_SetTextColor(LCD_COLOR_DARKGREEN);
+  		  BSP_LCD_DisplayStringAtLine(1,(uint8_t*)"HOLA MUNDO 1");
+  		  HAL_Delay(1000);
+  		  BSP_LCD_SetTextColor(LCD_COLOR_DARKBLUE);
+  		  BSP_LCD_DisplayStringAtLine(2,(uint8_t*)"HOLA MUNDO 2");
+  		  HAL_Delay(1000);
+  		  BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
+  		  BSP_LCD_DisplayStringAtLine(3,(uint8_t*)"HOLA MUNDO 3");
+  		  HAL_Delay(1000);
+  		  BSP_LCD_SetTextColor(LCD_COLOR_DARKYELLOW);
+  		  BSP_LCD_DisplayStringAtLine(4,(uint8_t*)"HOLA MUNDO 4");
+  		  HAL_Delay(1000);
+  		  BSP_LCD_SetTextColor(LCD_COLOR_DARKMAGENTA);
+  		  BSP_LCD_DisplayStringAtLine(5,(uint8_t*)"HOLA MUNDO 5");
+
+
+  	    osDelay(1000);
+  	  BSP_LCD_Clear(LCD_COLOR_WHITE);
+  	  }
+    /* USER CODE END lcd_task */
+  }
 
 /**
   * @brief  Period elapsed callback in non blocking mode
