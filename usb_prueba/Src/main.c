@@ -469,8 +469,8 @@ static void MX_GPIO_Init(void)
 
        for(;;)
        {
-     	if(f_mount(&myFats, USBH_Path, 1)==FR_OK){
-     		f_open(&myFile,"0:create2.txt", FA_WRITE|FA_CREATE_ALWAYS);
+     	if(f_mount(&myFats, (TCHAR const*)USBH_Path, 0)==FR_OK){
+     		f_open(&myFile,"create2.TXT\0", FA_WRITE|FA_CREATE_ALWAYS);
      		f_write(&myFile, myData, 11, &byteCount);
      		f_close(&myFile);
      	}

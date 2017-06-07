@@ -246,12 +246,12 @@ void StartDefaultTask(void const * argument)
 
     for(;;)
     {
-   	if(f_mount(&myFats,(TCHAR const*)USBH_Path, 0)==FR_OK){
-   		f_open(&myFile,"create2.TXT", FA_WRITE|FA_CREATE_ALWAYS);
-   		f_write(&myFile, myData, 11, &byteCount);
-   		f_close(&myFile);
-   	}
-    osDelay(1000);
+		if(f_mount(&myFats,(TCHAR const*)USBH_Path, 0)==FR_OK){
+			f_open(&myFile,"create2.TXT", FA_CREATE_ALWAYS|FA_WRITE);
+			f_write(&myFile, myData, 11, &byteCount);
+			f_close(&myFile);
+		}
+		osDelay(1000);
     }
   /* USER CODE END 5 */ 
 }
