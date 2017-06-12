@@ -1,78 +1,38 @@
-/**
-  ******************************************************************************
-  * File Name          : main.c
-  * Description        : Main program body
-  ******************************************************************************
-  * This notice applies to any and all portions of this file
-  * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
-  *
-  * Copyright (c) 2017 STMicroelectronics International N.V. 
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without 
-  * modification, are permitted, provided that the following conditions are met:
-  *
-  * 1. Redistribution of source code must retain the above copyright notice, 
-  *    this list of conditions and the following disclaimer.
-  * 2. Redistributions in binary form must reproduce the above copyright notice,
-  *    this list of conditions and the following disclaimer in the documentation
-  *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other 
-  *    contributors to this software may be used to endorse or promote products 
-  *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this 
-  *    software, must execute solely and exclusively on microcontroller or
-  *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under 
-  *    this license is void and will automatically terminate your rights under 
-  *    this license. 
-  *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
-  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
-  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "fatfs.h"
+#include "usb_host.h"
+
 
 /* USER CODE BEGIN Includes */
-#include "string.h"
 
-FATFS   fatfs; 		/* FAT File System */
-FRESULT fresult;  /* FAT File Result */
-FIL			myfile;		/* FILE Instance */
 /* USER CODE END Includes */
-BYTE GE;
-char SDPath[4];
-/* Private variables ---------------------------------------------------------*/
-SD_HandleTypeDef hsd;
 
+/* Private variables ---------------------------------------------------------*/
+FATFS USBDISKFatFs;           /* File system object for USB disk logical drive */
+FIL MyFile;                   /* File object */
+char USBDISKPath[4];          /* USB Host logical drive path */
+USBH_HandleTypeDef hUSB_Host; /* USB Host handle */
+//ApplicationTypeDef Appli_state = APPLICATION_IDLE;
+/*
+typedef enum {
+  APPLICATION_IDLE = 0,
+  APPLICATION_START,
+  APPLICATION_RUNNING,
+}MSC_ApplicationTypeDef;
+
+MSC_ApplicationTypeDef Appli_state = APPLICATION_IDLE;*/
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-int a=10;
-float b=0.00132;
-uint8_t buffer[50];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_SDIO_SD_Init(void);
+//static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id);
+//static void MSC_Application(void);
+
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -108,7 +68,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_SDIO_SD_Init();
   MX_FATFS_Init();
 
   /* USER CODE BEGIN 2 */
@@ -117,25 +76,124 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  if(FATFS_LinkDriver(&USBH_Driver, USBDISKPath) == 0)
+    {
+      /*##-2- Init Host Library ################################################*/
+	  MX_USB_HOST_Init();
 
-  if(FATFS_LinkDriver(&SD_Driver, SDPath) == 0){
-   if(BSP_SD_Init()==MSD_OK){
-	   if(disk_initialize(GE)==RES_OK){
-		  if(f_mount(&fatfs,"",1)==FR_OK){
-			  fresult=f_open(&myfile, "createFile.txt", FA_CREATE_ALWAYS|FA_WRITE);
-			  f_printf(&myfile,"hola mundo\n 2017");
-			  f_printf(&myfile,"%d",a);
-			  sprintf((char*)buffer,"%0.5f",b);
-			  f_printf(&myfile,(const char*)buffer);
-			  f_close(&myfile);
-		  }
- 	  }
-   }
-  }
+      /*##-5- Run Application (Blocking mode) ##################################*/
+      while (1)
+      {
+        /* USB Host Background task */
+    	 MX_USB_HOST_Process();
+        //USBH_Process(&hUSB_Host);
+        /* Mass Storage Application State Machine */
+
+      }
+    }
   /* USER CODE END 3 */
 
 }
 
+
+void MSC_Application(void)
+{
+  FRESULT res;                                          /* FatFs function common result code */
+  uint32_t byteswritten, bytesread;                     /* File write/read counts */
+  uint8_t wtext[] = "HOLA MUNDO"; /* File write buffer */
+  uint8_t rtext[100];                                   /* File read buffer */
+
+  /* Register the file system object to the FatFs module */
+  if(f_mount(&USBDISKFatFs, (TCHAR const*)USBDISKPath, 0) != FR_OK)
+  {
+    /* FatFs Initialization Error */
+    Error_Handler();
+  }
+  else
+  {
+      /* Create and Open a new text file object with write access */
+      if(f_open(&MyFile, "STM32f429.TXT", FA_CREATE_ALWAYS | FA_WRITE) != FR_OK)
+      {
+        /* 'STM32.TXT' file Open for write Error */
+        Error_Handler();
+      }
+      else
+      {
+        /* Write data to the text file */
+        res = f_write(&MyFile, wtext, sizeof(wtext), (void *)&byteswritten);
+
+        if((byteswritten == 0) || (res != FR_OK))
+        {
+          /* 'STM32.TXT' file Write or EOF Error */
+          Error_Handler();
+        }
+        else
+        {
+          /* Close the open text file */
+          f_close(&MyFile);
+
+        /* Open the text file object with read access */
+        if(f_open(&MyFile, "STM32.TXT", FA_READ) != FR_OK)
+        {
+          /* 'STM32.TXT' file Open for read Error */
+          Error_Handler();
+        }
+        else
+        {
+          /* Read data from the text file */
+          res = f_read(&MyFile, rtext, sizeof(rtext), (void *)&bytesread);
+
+          if((bytesread == 0) || (res != FR_OK))
+          {
+            /* 'STM32.TXT' file Read or EOF Error */
+            Error_Handler();
+          }
+          else
+          {
+            /* Close the open text file */
+            f_close(&MyFile);
+
+            /* Compare read data with the expected data */
+            if((bytesread != byteswritten))
+            {
+              /* Read data is different from the expected data */
+              Error_Handler();
+            }
+            else
+            {
+              /* Success of the demo: no error occurrence */
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* Unlink the USB disk I/O driver */
+  FATFS_UnLinkDriver(USBDISKPath);
+}
+
+/*
+static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id)
+{
+  switch(id)
+  {
+  case HOST_USER_SELECT_CONFIGURATION:
+    break;
+
+  case HOST_USER_DISCONNECTION:
+    Appli_state = APPLICATION_IDLE;
+    f_mount(NULL, (TCHAR const*)"", 0);
+    break;
+
+  case HOST_USER_CLASS_ACTIVE:
+    Appli_state = APPLICATION_START;
+    break;
+
+  default:
+    break;
+  }
+}*/
 /** System Clock Configuration
 */
 void SystemClock_Config(void)
@@ -172,7 +230,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
@@ -191,20 +249,6 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/* SDIO init function */
-static void MX_SDIO_SD_Init(void)
-{
-
-  hsd.Instance = SDIO;
-  hsd.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
-  hsd.Init.ClockBypass = SDIO_CLOCK_BYPASS_DISABLE;
-  hsd.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_DISABLE;
-  hsd.Init.BusWide = SDIO_BUS_WIDE_1B;
-  hsd.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
-  hsd.Init.ClockDiv = 0;
-
-}
-
 /** Configure pins as 
         * Analog 
         * Input 
@@ -215,24 +259,10 @@ static void MX_SDIO_SD_Init(void)
 static void MX_GPIO_Init(void)
 {
 
-  GPIO_InitTypeDef GPIO_InitStruct;
-
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOG_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13|GPIO_PIN_14, GPIO_PIN_RESET);
-
-  /*Configure GPIO pins : PG13 PG14 */
-  GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
 }
 

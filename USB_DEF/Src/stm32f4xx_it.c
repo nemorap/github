@@ -40,7 +40,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern SD_HandleTypeDef hsd;
+extern HCD_HandleTypeDef hhcd_USB_OTG_HS;
 
 extern TIM_HandleTypeDef htim1;
 
@@ -110,17 +110,17 @@ void TIM1_UP_TIM10_IRQHandler(void)
 }
 
 /**
-* @brief This function handles SDIO global interrupt.
+* @brief This function handles USB On The Go HS global interrupt.
 */
-void SDIO_IRQHandler(void)
+void OTG_HS_IRQHandler(void)
 {
-  /* USER CODE BEGIN SDIO_IRQn 0 */
+  /* USER CODE BEGIN OTG_HS_IRQn 0 */
 
-  /* USER CODE END SDIO_IRQn 0 */
-  HAL_SD_IRQHandler(&hsd);
-  /* USER CODE BEGIN SDIO_IRQn 1 */
+  /* USER CODE END OTG_HS_IRQn 0 */
+  HAL_HCD_IRQHandler(&hhcd_USB_OTG_HS);
+  /* USER CODE BEGIN OTG_HS_IRQn 1 */
 
-  /* USER CODE END SDIO_IRQn 1 */
+  /* USER CODE END OTG_HS_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
