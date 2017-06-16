@@ -53,9 +53,10 @@
 #include "usbh_core.h"
 #include "usbh_msc.h"
 #include "main.h"
+#include "fatfs.h"
 
 /* USB Host Core handle declaration */
-USBH_HandleTypeDef hUsbHostHS;
+USBH_HandleTypeDef hUSB_Host;
 ApplicationTypeDef Appli_state = APPLICATION_IDLE;
 
 /**
@@ -81,11 +82,11 @@ static void USBH_UserProcess  (USBH_HandleTypeDef *phost, uint8_t id);
 void MX_USB_HOST_Init(void)
 {
   /* Init Host Library,Add Supported Class and Start the library*/
-  USBH_Init(&hUsbHostHS, USBH_UserProcess, HOST_HS);
+  USBH_Init(&hUSB_Host, USBH_UserProcess,0);
 
-  USBH_RegisterClass(&hUsbHostHS, USBH_MSC_CLASS);
+  USBH_RegisterClass(&hUSB_Host, USBH_MSC_CLASS);
 
-  USBH_Start(&hUsbHostHS);
+  USBH_Start(&hUSB_Host);
 }
 
 /*
@@ -94,8 +95,7 @@ void MX_USB_HOST_Init(void)
 void MX_USB_HOST_Process(void) 
 {
   /* USB Host Background task */
-    USBH_Process(&hUsbHostHS);
-
+    USBH_Process(&hUSB_Host);
     switch(Appli_state)
 	{
 	case APPLICATION_START:
@@ -107,6 +107,7 @@ void MX_USB_HOST_Process(void)
 	default:
 	  break;
 	}
+
 }
 /*
  * user callback definition
@@ -115,26 +116,23 @@ static void USBH_UserProcess  (USBH_HandleTypeDef *phost, uint8_t id)
 {
 
   /* USER CODE BEGIN CALL_BACK_1 */
-  switch(id)
-  { 
-  case HOST_USER_SELECT_CONFIGURATION:
-  break;
-    
-  case HOST_USER_DISCONNECTION:
-  Appli_state = APPLICATION_DISCONNECT;
-  break;
-    
-  case HOST_USER_CLASS_ACTIVE:
-  Appli_state = APPLICATION_READY;
-  break;
+	switch(id)
+	  {
+	  case HOST_USER_SELECT_CONFIGURATION:
+	    break;
 
-  case HOST_USER_CONNECTION:
-  Appli_state = APPLICATION_START;
-  break;
+	  case HOST_USER_DISCONNECTION:
+	    Appli_state = APPLICATION_IDLE;
+	    f_mount(NULL, (TCHAR const*)"", 0);
+	    break;
 
-  default:
-  break; 
-  }
+	  case HOST_USER_CLASS_ACTIVE:
+	    Appli_state = APPLICATION_START;
+	    break;
+
+	  default:
+	    break;
+	  }
   /* USER CODE END CALL_BACK_1 */
 }
 	

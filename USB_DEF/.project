@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>USB_DEF</name>
-	<comment />
+	<comment></comment>
 	<projects>
 	</projects>
 	<buildSpec>
@@ -25,6 +25,46 @@
 		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
 	</natures>
 	<linkedResources>
-		
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c</name>
+			<type>1</type>
+			<locationURI>copy_PARENT/Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_ctlreq.c</name>
+			<type>1</type>
+			<locationURI>copy_PARENT/Middlewares/ST/STM32_USB_HOST_Library/Core/Src/usbh_ctlreq.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_ioreq.c</name>
+			<type>1</type>
+			<locationURI>copy_PARENT/Middlewares/ST/STM32_USB_HOST_Library/Core/Src/usbh_ioreq.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_pipes.c</name>
+			<type>1</type>
+			<locationURI>copy_PARENT/Middlewares/ST/STM32_USB_HOST_Library/Core/Src/usbh_pipes.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src/usbh_msc.c</name>
+			<type>1</type>
+			<locationURI>copy_PARENT/Middlewares/ST/STM32_USB_HOST_Library/Class/MSC/Src/usbh_msc.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src/usbh_msc_bot.c</name>
+			<type>1</type>
+			<locationURI>copy_PARENT/Middlewares/ST/STM32_USB_HOST_Library/Class/MSC/Src/usbh_msc_bot.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src/usbh_msc_scsi.c</name>
+			<type>1</type>
+			<locationURI>copy_PARENT/Middlewares/ST/STM32_USB_HOST_Library/Class/MSC/Src/usbh_msc_scsi.c</locationURI>
+		</link>
 	</linkedResources>
+	<variableList>
+		<variable>
+			<name>copy_PARENT</name>
+			<value>file:/B:/gacevedo/CIC/Keil_v5/STM32Cube_FW_F4_V1.12.0</value>
+		</variable>
+	</variableList>
 </projectDescription>

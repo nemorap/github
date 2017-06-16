@@ -1,17 +1,15 @@
 /**
   ******************************************************************************
-  * @file           : usbh_conf.h
-  * @version        : v1.0_Cube
-  * @brief          : Header for usbh_conf file.
+  * @file    FatFs/FatFs_USBDisk/Inc/usbh_conf.h
+  * @author  MCD Application Team
+  * @version V1.3.4
+  * @date    06-May-2016
+  * @brief   General low level driver configuration
   ******************************************************************************
-  * This notice applies to any and all portions of this file
-  * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
+  * @attention
   *
-  * Copyright (c) 2017 STMicroelectronics International N.V. 
-  * All rights reserved.
+  * <h2><center>&copy; Copyright © 2016 STMicroelectronics International N.V. 
+  * All rights reserved.</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without 
   * modification, are permitted, provided that the following conditions are met:
@@ -45,69 +43,35 @@
   * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-*/
+  */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __USBH_CONF__H__
-#define __USBH_CONF__H__
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#ifdef __cplusplus
- extern "C" {
-#endif
+#ifndef __USBH_CONF_H
+#define __USBH_CONF_H
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
-#include "stm32f4xx_hal.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-/**
-	MiddleWare name : USB_HOST
-	MiddleWare fileName : usbh_conf.h
-	MiddleWare version : 
-*/
-/*----------   -----------*/
-#define USBH_MAX_NUM_ENDPOINTS      2 
- 
-/*----------   -----------*/
-#define USBH_MAX_NUM_INTERFACES      2 
- 
-/*----------   -----------*/
-#define USBH_MAX_NUM_CONFIGURATION      1 
- 
-/*----------   -----------*/
-#define USBH_KEEP_CFG_DESCRIPTOR      1 
- 
-/*----------   -----------*/
-#define USBH_MAX_NUM_SUPPORTED_CLASS      1 
- 
-/*----------   -----------*/
-#define USBH_MAX_SIZE_CONFIGURATION      256 
- 
-/*----------   -----------*/
-#define USBH_MAX_DATA_BUFFER      512 
- 
-/*----------   -----------*/
-#define USBH_DEBUG_LEVEL      0 
- 
-/*----------   -----------*/
-#define USBH_USE_OS      0 
- 
- 
- 
-
-/****************************************/
-/* #define for FS and HS identification */
-#define HOST_HS 		0
-#define HOST_FS 		1
-
-/** @defgroup USBH_Exported_Macros
-  * @{
-  */ 
+/* Exported types ------------------------------------------------------------*/
+#define USBH_MAX_NUM_ENDPOINTS                2
+#define USBH_MAX_NUM_INTERFACES               2
+#define USBH_MAX_NUM_CONFIGURATION            1
+#define USBH_MAX_NUM_SUPPORTED_CLASS          1
+#define USBH_KEEP_CFG_DESCRIPTOR              0
+#define USBH_MAX_SIZE_CONFIGURATION           0x200
+#define USBH_MAX_DATA_BUFFER                  0x200
+#define USBH_DEBUG_LEVEL                      0
+#define USBH_USE_OS                           0
+    
+/* Exported constants --------------------------------------------------------*/
+/* Exported macro ------------------------------------------------------------*/
+/* CMSIS OS macros */   
 #if (USBH_USE_OS == 1)
   #include "cmsis_os.h"
-  #define   USBH_PROCESS_PRIO          osPriorityNormal
-  #define   USBH_PROCESS_STACK_SIZE    ((uint16_t)0)
-#endif    
+  #define   USBH_PROCESS_PRIO    osPriorityNormal
+#endif
 
  /* Memory management macros */   
 #define USBH_malloc               malloc
@@ -116,7 +80,6 @@
 #define USBH_memcpy               memcpy
     
  /* DEBUG macros */  
-
 #if (USBH_DEBUG_LEVEL > 0)
 #define  USBH_UsrLog(...)   printf(__VA_ARGS__);\
                             printf("\n");
@@ -132,9 +95,8 @@
                             printf("\n");
 #else
 #define USBH_ErrLog(...)   
-#endif 
-                            
-                            
+#endif
+
 #if (USBH_DEBUG_LEVEL > 2)                         
 #define  USBH_DbgLog(...)   printf("DEBUG : ") ;\
                             printf(__VA_ARGS__);\
@@ -143,56 +105,8 @@
 #define USBH_DbgLog(...)                         
 #endif
                             
-/**
-  * @}
-  */ 
-                                                                
-    
-    
-/**
-  * @}
-  */ 
+/* Exported functions ------------------------------------------------------- */
 
-/** @defgroup USBH_CONF_Exported_Types
-  * @{
-  */ 
-/**
-  * @}
-  */ 
+#endif /* __USB_CONF_H */
 
-/** @defgroup USBH_CONF_Exported_Macros
-  * @{
-  */ 
-/**
-  * @}
-  */ 
-
-/** @defgroup USBH_CONF_Exported_Variables
-  * @{
-  */ 
-/**
-  * @}
-  */ 
-
-/** @defgroup USBH_CONF_Exported_FunctionsPrototype
-  * @{
-  */ 
-/**
-  * @}
-  */ 
-
-#ifdef __cplusplus
-}
-#endif 
-
-#endif /* __USBH_CONF__H__ */
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */ 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-

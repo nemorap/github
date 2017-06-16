@@ -1,16 +1,15 @@
 /**
   ******************************************************************************
-  * File Name          : main.h
-  * Description        : This file contains the common defines of the application
+  * @file    FatFs/FatFs_USBDisk/Inc/main.h 
+  * @author  MCD Application Team
+  * @version V1.3.4
+  * @date    06-May-2016
+  * @brief   Header for main.c module
   ******************************************************************************
-  * This notice applies to any and all portions of this file
-  * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
+  * @attention
   *
-  * Copyright (c) 2017 STMicroelectronics International N.V. 
-  * All rights reserved.
+  * <h2><center>&copy; Copyright © 2016 STMicroelectronics International N.V. 
+  * All rights reserved.</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without 
   * modification, are permitted, provided that the following conditions are met:
@@ -48,30 +47,21 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H
 #define __MAIN_H
-  /* Includes ------------------------------------------------------------------*/
 
-/* USER CODE BEGIN Includes */
+/* Includes ------------------------------------------------------------------*/
+#include "stm32f4xx_hal.h"
+#include "stm32f429i_discovery.h"
 
-/* USER CODE END Includes */
+/* FatFs includes component */
+#include "ff_gen_drv.h"
+#include "usbh_diskio.h"
 
-/* Private define ------------------------------------------------------------*/
-
-/* USER CODE BEGIN Private defines */
-
-/* USER CODE END Private defines */
-
-void _Error_Handler(char *, int);
 void MSC_Application(void);
 
-#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
 
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-*/ 
+/* Exported types ------------------------------------------------------------*/
+/* Exported constants --------------------------------------------------------*/
 
 #endif /* __MAIN_H */
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -12,16 +12,17 @@
 FATFS USBDISKFatFs;           /* File system object for USB disk logical drive */
 FIL MyFile;                   /* File object */
 char USBDISKPath[4];          /* USB Host logical drive path */
-USBH_HandleTypeDef hUSB_Host; /* USB Host handle */
-//ApplicationTypeDef Appli_state = APPLICATION_IDLE;
+//USBH_HandleTypeDef hUSB_Host; /* USB Host handle */
+
 /*
 typedef enum {
-  APPLICATION_IDLE = 0,
-  APPLICATION_START,
-  APPLICATION_RUNNING,
+  APPLICATION_IDLE1 = 0,
+  APPLICATION_START1,
+  APPLICATION_RUNNING1,
 }MSC_ApplicationTypeDef;
 
-MSC_ApplicationTypeDef Appli_state = APPLICATION_IDLE;*/
+MSC_ApplicationTypeDef Appli_state1 = APPLICATION_IDLE1;*/
+
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -30,8 +31,9 @@ MSC_ApplicationTypeDef Appli_state = APPLICATION_IDLE;*/
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-//static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id);
-//static void MSC_Application(void);
+void _Error_Handler(void);
+//static void USBH_UserProcess1(USBH_HandleTypeDef *phost, uint8_t id);
+
 
 
 /* USER CODE BEGIN PFP */
@@ -84,10 +86,9 @@ int main(void)
       /*##-5- Run Application (Blocking mode) ##################################*/
       while (1)
       {
-        /* USB Host Background task */
-    	 MX_USB_HOST_Process();
-        //USBH_Process(&hUSB_Host);
-        /* Mass Storage Application State Machine */
+    	  MX_USB_HOST_Process();
+
+		/* Mass Storage Application State Machine */
 
       }
     }
@@ -100,7 +101,7 @@ void MSC_Application(void)
 {
   FRESULT res;                                          /* FatFs function common result code */
   uint32_t byteswritten, bytesread;                     /* File write/read counts */
-  uint8_t wtext[] = "HOLA MUNDO"; /* File write buffer */
+  uint8_t wtext[] = "HOLA MUNDO\n"; /* File write buffer */
   uint8_t rtext[100];                                   /* File read buffer */
 
   /* Register the file system object to the FatFs module */
@@ -133,7 +134,7 @@ void MSC_Application(void)
           f_close(&MyFile);
 
         /* Open the text file object with read access */
-        if(f_open(&MyFile, "STM32.TXT", FA_READ) != FR_OK)
+        if(f_open(&MyFile, "STM32f429.TXT", FA_READ) != FR_OK)
         {
           /* 'STM32.TXT' file Open for read Error */
           Error_Handler();
@@ -173,27 +174,7 @@ void MSC_Application(void)
   FATFS_UnLinkDriver(USBDISKPath);
 }
 
-/*
-static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id)
-{
-  switch(id)
-  {
-  case HOST_USER_SELECT_CONFIGURATION:
-    break;
 
-  case HOST_USER_DISCONNECTION:
-    Appli_state = APPLICATION_IDLE;
-    f_mount(NULL, (TCHAR const*)"", 0);
-    break;
-
-  case HOST_USER_CLASS_ACTIVE:
-    Appli_state = APPLICATION_START;
-    break;
-
-  default:
-    break;
-  }
-}*/
 /** System Clock Configuration
 */
 void SystemClock_Config(void)
@@ -220,7 +201,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLQ = 7;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
-    _Error_Handler(__FILE__, __LINE__);
+    _Error_Handler();
   }
 
     /**Initializes the CPU, AHB and APB busses clocks 
@@ -234,7 +215,7 @@ void SystemClock_Config(void)
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
-    _Error_Handler(__FILE__, __LINE__);
+    _Error_Handler();
   }
 
     /**Configure the Systick interrupt time 
@@ -278,32 +259,29 @@ static void MX_GPIO_Init(void)
   * @param  htim : TIM handle
   * @retval None
   */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-/* USER CODE BEGIN Callback 0 */
 
-/* USER CODE END Callback 0 */
+/*void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+
   if (htim->Instance == TIM1) {
     HAL_IncTick();
   }
-/* USER CODE BEGIN Callback 1 */
 
-/* USER CODE END Callback 1 */
-}
+}*/
 
 /**
   * @brief  This function is executed in case of error occurrence.
   * @param  None
   * @retval None
   */
-void _Error_Handler(char * file, int line)
+
+void _Error_Handler()
 {
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
+
   while(1) 
   {
   }
-  /* USER CODE END Error_Handler_Debug */ 
+
 }
 
 #ifdef USE_FULL_ASSERT
