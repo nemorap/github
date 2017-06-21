@@ -87,6 +87,8 @@ FIL MyFile;                   /* File object */
 char USBDISKPath[4];          /* USB Host logical drive path */
 USBH_HandleTypeDef hUSB_Host; /* USB Host handle */
 int contador=0;
+int boton=0;
+int bandera=0;
 /*
 * user callbak declaration
 */
@@ -135,6 +137,7 @@ int main(void)
   /* USER CODE BEGIN SysInit */
   BSP_LED_Init(LED3);
   BSP_LED_Init(LED4);
+  BSP_PB_Init(BUTTON_KEY,BUTTON_MODE_GPIO);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -447,7 +450,6 @@ static void MX_FMC_Init(void)
 */
 static void MX_GPIO_Init(void)
 {
-
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
@@ -484,6 +486,11 @@ void USB_TASK(void const * argument)
 
 	    for( ;; )
 	    {
+	    	boton=BSP_PB_GetState(BUTTON_KEY);
+			 if(boton!=0){
+				 bandera=1;
+			 }
+	     if(bandera==1){
 	      event = osMessageGet(queue_usbHandle, osWaitForever);
 
 
@@ -492,17 +499,20 @@ void USB_TASK(void const * argument)
 	        switch(event.value.v)
 	        {
 	        case CONNECTION_EVENT:
-	          MSC_Application();
+	        		MSC_Application();
 	          break;
 
 	        case DISCONNECTION_EVENT:
+	        	osMessagePut(queue_usbHandle, CONNECTION_EVENT, 0);
 	          break;
 
 	        default:
 	          break;
 	        }
 	      }
-	      osDelay(10);
+
+	    }
+	     osDelay(10);
 	    }
 	  }
 
@@ -548,6 +558,7 @@ void LCD_TASK(void const * argument)
 
 static void MSC_Application(void)
 {
+
   FRESULT res;                                          /* FatFs function common result code */
   uint32_t byteswritten, bytesread;                     /* File write/read counts */
   uint8_t wtext[] = "HELLO WORLD"; /* File write buffer */
@@ -569,7 +580,8 @@ static void MSC_Application(void)
         if(contador>254){
 			BSP_LED_On(LED3);
 			f_close(&MyFile);
-			FATFS_UnLinkDriver(USBDISKPath);
+			//FATFS_UnLinkDriver(USBDISKPath);
+			bandera=0;
 			osMessagePut(queue_usbHandle, DISCONNECTION_EVENT, 0);
 		  }
 		  else{
@@ -612,7 +624,6 @@ static void MSC_Application(void)
 
           }
         }*/
-
 
     }
   }
