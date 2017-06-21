@@ -49,8 +49,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbh_core.h"
 
-#define HOST_POWERSW_PORT                 GPIOC
-#define HOST_POWERSW_VBUS                 GPIO_PIN_4
 HCD_HandleTypeDef hhcd_USB_OTG_HS;
 void _Error_Handler(char * file, int line);
 
@@ -61,46 +59,40 @@ void _Error_Handler(char * file, int line);
 
 void HAL_HCD_MspInit(HCD_HandleTypeDef* hcdHandle)
 {
-	 GPIO_InitTypeDef  GPIO_InitStruct;
+  GPIO_InitTypeDef GPIO_InitStruct;
+  if(hcdHandle->Instance==USB_OTG_HS)
+  {
+  /* USER CODE BEGIN USB_OTG_HS_MspInit 0 */
 
-	  /*EMBEDDED Physical interface*/
-	  __HAL_RCC_GPIOB_CLK_ENABLE();
-	  __HAL_RCC_GPIOC_CLK_ENABLE();
+  /* USER CODE END USB_OTG_HS_MspInit 0 */
+  
+    /**USB_OTG_HS GPIO Configuration    
+    PB13     ------> USB_OTG_HS_VBUS
+    PB14     ------> USB_OTG_HS_DM
+    PB15     ------> USB_OTG_HS_DP 
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_13;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-	  GPIO_InitStruct.Pin = (GPIO_PIN_14 | GPIO_PIN_15);
-	  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-	  GPIO_InitStruct.Pull = GPIO_NOPULL;
-	  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-	  GPIO_InitStruct.Alternate = GPIO_AF12_OTG_HS_FS;
-	  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_14|GPIO_PIN_15;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF12_OTG_HS_FS;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-	  /* Configure  VBUS Pin */
-	  GPIO_InitStruct.Pin = GPIO_PIN_13;
-	  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-	  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-	  GPIO_InitStruct.Pull = GPIO_NOPULL;
-	  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    /* Peripheral clock enable */
+    __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
 
-	  /* Enable USB HS Clocks */
-	  __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
+    /* Peripheral interrupt init */
+    HAL_NVIC_SetPriority(OTG_HS_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(OTG_HS_IRQn);
+  /* USER CODE BEGIN USB_OTG_HS_MspInit 1 */
 
-	  /* Configure Power Switch Vbus Pin */
-	  GPIO_InitStruct.Pin = HOST_POWERSW_VBUS;
-	  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-	  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	  GPIO_InitStruct.Pull = GPIO_NOPULL;
-	  HAL_GPIO_Init(HOST_POWERSW_PORT,&GPIO_InitStruct);
-
-	  /* By Default, DISABLE is needed on output of the Power Switch */
-	  HAL_GPIO_WritePin(HOST_POWERSW_PORT, HOST_POWERSW_VBUS, GPIO_PIN_SET);
-
-	  USBH_Delay(200);   /* Delay is need for stabilising the Vbus Low */
-
-	  /* Set USBHS Interrupt to the lowest priority */
-	  HAL_NVIC_SetPriority(OTG_HS_IRQn, 5, 0);
-
-	  /* Enable USBFS Interrupt */
-	  HAL_NVIC_EnableIRQ(OTG_HS_IRQn);
+  /* USER CODE END USB_OTG_HS_MspInit 1 */
+  }
 }
 
 void HAL_HCD_MspDeInit(HCD_HandleTypeDef* hcdHandle)

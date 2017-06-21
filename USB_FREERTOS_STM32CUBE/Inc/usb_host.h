@@ -57,16 +57,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
-#include "main.h"
 
- typedef enum {
-   APPLICATION_IDLE = 0,
-   APPLICATION_START,
-   APPLICATION_RUNNING,
- }MSC_ApplicationTypeDef;
+
 		
 void MX_USB_HOST_Init(void);
-void MX_USB_HOST_Process(void);
 
 #ifdef __cplusplus
 }

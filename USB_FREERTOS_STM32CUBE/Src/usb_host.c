@@ -54,16 +54,9 @@
 #include "usbh_msc.h"
 
 /* USB Host Core handle declaration */
+USBH_HandleTypeDef hUsbHostHS;
+ApplicationTypeDef Appli_state = APPLICATION_IDLE;
 
-
-FATFS USBDISKFatFs;           /* File system object for USB disk logical drive */
- FIL MyFile;                   /* File object */
- char USBDISKPath[4];          /* USB Host logical drive path */
- USBH_HandleTypeDef hUSB_Host; /* USB Host handle */
- int contador=0;
-
-
- osEvent event;
 /**
 * -- Insert your variables declaration here --
 */ 
@@ -91,13 +84,12 @@ static void USBH_UserProcess  (USBH_HandleTypeDef *phost, uint8_t id);
 /* init function */				        
 void MX_USB_HOST_Init(void)
 {
-
   /* Init Host Library,Add Supported Class and Start the library*/
-  USBH_Init(&hUSB_Host, USBH_UserProcess, HOST_HS);
+  USBH_Init(&hUsbHostHS, USBH_UserProcess, HOST_HS);
 
-  USBH_RegisterClass(&hUSB_Host, USBH_MSC_CLASS);
+  USBH_RegisterClass(&hUsbHostHS, USBH_MSC_CLASS);
 
-  USBH_Start(&hUSB_Host);
+  USBH_Start(&hUsbHostHS);
 }
 
 /*
@@ -106,121 +98,31 @@ void MX_USB_HOST_Init(void)
 static void USBH_UserProcess  (USBH_HandleTypeDef *phost, uint8_t id)
 {
 
-	switch(id)
-	  {
-	  case HOST_USER_SELECT_CONFIGURATION:
-	    break;
+  /* USER CODE BEGIN CALL_BACK_1 */
+  switch(id)
+  { 
+  case HOST_USER_SELECT_CONFIGURATION:
+  break;
+    
+  case HOST_USER_DISCONNECTION:
+  Appli_state = APPLICATION_DISCONNECT;
+  break;
+    
+  case HOST_USER_CLASS_ACTIVE:
+  Appli_state = APPLICATION_READY;
+  break;
 
-	  case HOST_USER_DISCONNECTION:
-	    BSP_LED_On(LED4);
-	    osMessagePut(app_queueHandle, APPLICATION_IDLE, 0);
-	    break;
+  case HOST_USER_CONNECTION:
+  Appli_state = APPLICATION_START;
+  break;
 
-	  case HOST_USER_CLASS_ACTIVE:
-	    osMessagePut(app_queueHandle, APPLICATION_START, 0);
-	    break;
-
-	  default:
-	    break;
-	  }
-}
-
-void MX_USB_HOST_Process(void)
-{
-  /* USB Host Background task */
-	event = osMessageGet(app_queueHandle, osWaitForever);
-
-	if(event.status == osEventMessage)
-	{
-	  switch(event.value.v)
-	  {
-	  case APPLICATION_START:
-		MSC_Application();
-		break;
-
-	  case APPLICATION_IDLE:
-		f_mount(NULL, (TCHAR const*)"", 0);
-		break;
-
-	  default:
-		break;
-	  }
-	}
-}
-
-static void MSC_Application(void)
-{
-  FRESULT res;                                          /* FatFs function common result code */
-  uint32_t byteswritten, bytesread;                     /* File write/read counts */
-  uint8_t wtext[] = "HELLO WORLD"; /* File write buffer */
-  uint8_t rtext[100];                                   /* File read buffer */
-
-  /* Register the file system object to the FatFs module */
-  if(f_mount(&USBDISKFatFs, (TCHAR const*)USBDISKPath, 0) != FR_OK)
-  {
-    /* FatFs Initialization Error */
-    Error_Handler();
+  default:
+  break; 
   }
-  else
-  {
-      /* Create and Open a new text file object with write access */
-      if(open_append(&MyFile, "STM32.TXT") != FR_OK)
-      {
-        /* 'STM32.TXT' file Open for write Error */
-        Error_Handler();
-      }
-      else
-      {
-    	  BSP_LED_Off(LED3);
-        /* Write data to the text file */
-        res = f_write(&MyFile, wtext, sizeof(wtext), (void *)&byteswritten);
-        f_printf(&MyFile, "\r\n");
-        f_printf(&MyFile, "%d\r\n",contador);
-
-        if((byteswritten == 0) || (res != FR_OK))
-        {
-          /* 'STM32.TXT' file Write or EOF Error */
-          Error_Handler();
-        }
-        else
-        {
-          /* Close the open text file */
-          f_close(&MyFile);
-
-        /* Open the text file object with read access */
-        if(f_open(&MyFile, "STM32.TXT", FA_READ) != FR_OK)
-        {
-          /* 'STM32.TXT' file Open for read Error */
-          Error_Handler();
-        }
-        else
-        {
-          /* Read data from the text file */
-          res = f_read(&MyFile, rtext, sizeof(rtext), (void *)&bytesread);
-
-          if((bytesread == 0) || (res != FR_OK))
-          {
-            /* 'STM32.TXT' file Read or EOF Error */
-            Error_Handler();
-          }
-          else
-          {
-            /* Close the open text file */
-            f_close(&MyFile);
-
-            if(contador>254){
-            	BSP_LED_On(LED3);
-            	FATFS_UnLinkDriver(USBDISKPath);
-            	app_queueHandle = APPLICATION_IDLE;
-            }
-            contador++;
-
-          }
-        }
-      }
-    }
-  }
+  /* USER CODE END CALL_BACK_1 */
 }
+	
+
 /**
   * @}
   */

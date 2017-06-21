@@ -122,8 +122,7 @@ int main(void)
   MX_LTDC_Init();
   MX_SPI5_Init();
   MX_I2C3_Init();
-  BSP_LED_Init(LED3);
-  BSP_LED_Init(LED4);
+
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -411,7 +410,6 @@ static void MX_GPIO_Init(void)
 /* usb_task function */
 void usb_task(void const * argument)
 {
-
   /* init code for USB_HOST */
   MX_USB_HOST_Init();
 
@@ -434,34 +432,34 @@ void lcd_Task(void const * argument)
   /* USER CODE BEGIN lcd_Task */
   /* Infinite loop */
 	BSP_LCD_Init();
-		  BSP_LCD_LayerDefaultInit(LCD_BACKGROUND_LAYER, LCD_FRAME_BUFFER);
-		  BSP_LCD_LayerDefaultInit(LCD_FOREGROUND_LAYER, LCD_FRAME_BUFFER);
-		  BSP_LCD_SelectLayer(LCD_FOREGROUND_LAYER);
-		  BSP_LCD_DisplayOn();
+	  BSP_LCD_LayerDefaultInit(LCD_BACKGROUND_LAYER, LCD_FRAME_BUFFER);
+	  BSP_LCD_LayerDefaultInit(LCD_FOREGROUND_LAYER, LCD_FRAME_BUFFER);
+	  BSP_LCD_SelectLayer(LCD_FOREGROUND_LAYER);
+	  BSP_LCD_DisplayOn();
+	  BSP_LCD_Clear(LCD_COLOR_WHITE);
+
+	  while (1)
+	  {
+		  BSP_LCD_SetTextColor(LCD_COLOR_DARKGREEN);
+		  BSP_LCD_DisplayStringAtLine(1,(uint8_t*)"HOLA MUNDO 1");
+		  HAL_Delay(1000);
+		  BSP_LCD_SetTextColor(LCD_COLOR_DARKBLUE);
+		  BSP_LCD_DisplayStringAtLine(2,(uint8_t*)"HOLA MUNDO 2");
+		  HAL_Delay(1000);
+		  BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
+		  BSP_LCD_DisplayStringAtLine(3,(uint8_t*)"HOLA MUNDO 3");
+		  HAL_Delay(1000);
+		  BSP_LCD_SetTextColor(LCD_COLOR_DARKYELLOW);
+		  BSP_LCD_DisplayStringAtLine(4,(uint8_t*)"HOLA MUNDO 4");
+		  HAL_Delay(1000);
+		  BSP_LCD_SetTextColor(LCD_COLOR_DARKMAGENTA);
+		  BSP_LCD_DisplayStringAtLine(5,(uint8_t*)"HOLA MUNDO 5");
+		  HAL_Delay(1000);
 		  BSP_LCD_Clear(LCD_COLOR_WHITE);
+		  osDelay(1000);
 
-		  while (1)
-		  {
-			  BSP_LCD_SetTextColor(LCD_COLOR_DARKGREEN);
-			  BSP_LCD_DisplayStringAtLine(1,(uint8_t*)"HOLA MUNDO 1");
-			  HAL_Delay(1000);
-			  BSP_LCD_SetTextColor(LCD_COLOR_DARKBLUE);
-			  BSP_LCD_DisplayStringAtLine(2,(uint8_t*)"HOLA MUNDO 2");
-			  HAL_Delay(1000);
-			  BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
-			  BSP_LCD_DisplayStringAtLine(3,(uint8_t*)"HOLA MUNDO 3");
-			  HAL_Delay(1000);
-			  BSP_LCD_SetTextColor(LCD_COLOR_DARKYELLOW);
-			  BSP_LCD_DisplayStringAtLine(4,(uint8_t*)"HOLA MUNDO 4");
-			  HAL_Delay(1000);
-			  BSP_LCD_SetTextColor(LCD_COLOR_DARKMAGENTA);
-			  BSP_LCD_DisplayStringAtLine(5,(uint8_t*)"HOLA MUNDO 5");
-			  HAL_Delay(1000);
-			  BSP_LCD_Clear(LCD_COLOR_WHITE);
-			  osDelay(1000);
-
-		  }
-  /* USER CODE END lcd_Task */
+	  }
+/* USER CODE END lcd_Task */
 }
 
 /**
